@@ -104,6 +104,7 @@ private:
     // 当前帧原始激光点云
     pcl::PointCloud<PointXYZIRT>::Ptr laserCloudIn;
     pcl::PointCloud<OusterPointXYZIRT>::Ptr tmpOusterCloudIn;
+    pcl::PointCloud<pcl::PointXYZI>::Ptr tmpLivoxCloudIn;
     // 当期帧运动畸变校正之后的激光点云
     pcl::PointCloud<PointType>::Ptr   fullCloud;
     // 从fullCloud中提取有效点
@@ -163,6 +164,7 @@ public:
     {
         laserCloudIn.reset(new pcl::PointCloud<PointXYZIRT>());
         tmpOusterCloudIn.reset(new pcl::PointCloud<OusterPointXYZIRT>());
+        tmpLivoxCloudIn.reset(new pcl::PointCloud<pcl::PointXYZI>());
         fullCloud.reset(new pcl::PointCloud<PointType>());
         extractedCloud.reset(new pcl::PointCloud<PointType>());
 
@@ -216,21 +218,21 @@ public:
         imuQueue.push_back(thisImu);
 
         // debug IMU data
-        // cout << std::setprecision(6);
-        // cout << "IMU acc: " << endl;
-        // cout << "x: " << thisImu.linear_acceleration.x << 
-        //       ", y: " << thisImu.linear_acceleration.y << 
-        //       ", z: " << thisImu.linear_acceleration.z << endl;
-        // cout << "IMU gyro: " << endl;
-        // cout << "x: " << thisImu.angular_velocity.x << 
-        //       ", y: " << thisImu.angular_velocity.y << 
-        //       ", z: " << thisImu.angular_velocity.z << endl;
-        // double imuRoll, imuPitch, imuYaw;
-        // tf::Quaternion orientation;
-        // tf::quaternionMsgToTF(thisImu.orientation, orientation);
-        // tf::Matrix3x3(orientation).getRPY(imuRoll, imuPitch, imuYaw);
-        // cout << "IMU roll pitch yaw: " << endl;
-        // cout << "roll: " << imuRoll << ", pitch: " << imuPitch << ", yaw: " << imuYaw << endl << endl;
+//         cout << std::setprecision(6);
+//         cout << "IMU acc: " << endl;
+//         cout << "x: " << thisImu.linear_acceleration.x <<
+//               ", y: " << thisImu.linear_acceleration.y <<
+//               ", z: " << thisImu.linear_acceleration.z << endl;
+//         cout << "IMU gyro: " << endl;
+//         cout << "x: " << thisImu.angular_velocity.x <<
+//               ", y: " << thisImu.angular_velocity.y <<
+//               ", z: " << thisImu.angular_velocity.z << endl;
+//         double imuRoll, imuPitch, imuYaw;
+//         tf::Quaternion orientation;
+//         tf::quaternionMsgToTF(thisImu.orientation, orientation);
+//         tf::Matrix3x3(orientation).getRPY(imuRoll, imuPitch, imuYaw);
+//         cout << "IMU roll pitch yaw: " << endl;
+//         cout << "roll: " << imuRoll << ", pitch: " << imuPitch << ", yaw: " << imuYaw << endl << endl;
     }
 
     /**
@@ -319,6 +321,29 @@ public:
                 dst.time = src.t * 1e-9f;
             }
         }
+        else if (sensor == SensorType::LIVOX)
+        {
+            // 为了保证ring不重复(mid 100由三个拼起来)
+//            std::set<int> ring_set;
+//            int last_ring = -1;
+//            int curr_ring = -1;
+//            bool ring_change;
+            pcl::moveFromROSMsg(currentCloudMsg, *tmpLivoxCloudIn);
+            laserCloudIn->points.resize(tmpLivoxCloudIn->size());
+            laserCloudIn->is_dense = tmpLivoxCloudIn->is_dense;
+            laserCloudIn->header = tmpLivoxCloudIn->header;
+            for (size_t i = 0; i < tmpLivoxCloudIn->size(); i++) {
+                auto &src = tmpLivoxCloudIn->points[i];
+                auto &dst = laserCloudIn->points[i];
+                dst.x = src.x;
+                dst.y = src.y;
+                dst.z = src.z;
+                dst.intensity = src.intensity;
+                int ring = int(src.intensity);
+                dst.ring = ring;
+                dst.time = (src.intensity - ring); //单位是s
+            }
+        }
         else
         {
             ROS_ERROR_STREAM("Unknown sensor type: " << int(sensor));
@@ -339,41 +364,41 @@ public:
             ros::shutdown();
         }
 
-        // 检查是否存在ring通道，注意static只检查一次
-        static int ringFlag = 0;
-        if (ringFlag == 0)
-        {
-            ringFlag = -1;
-            for (int i = 0; i < (int)currentCloudMsg.fields.size(); ++i)
-            {
-                if (currentCloudMsg.fields[i].name == "ring")
-                {
-                    ringFlag = 1;
-                    break;
-                }
-            }
-            if (ringFlag == -1)
-            {
-                ROS_ERROR("Point cloud ring channel not available, please configure your point cloud data!");
-                ros::shutdown();
-            }
-        }
-
-        // 检查是否存在time通道
-        if (deskewFlag == 0)
-        {
-            deskewFlag = -1;
-            for (auto &field : currentCloudMsg.fields)
-            {
-                if (field.name == "time" || field.name == "t")
-                {
-                    deskewFlag = 1;
-                    break;
-                }
-            }
-            if (deskewFlag == -1)
-                ROS_WARN("Point cloud timestamp not available, deskew function disabled, system will drift significantly!");
-        }
+//        // 检查是否存在ring通道，注意static只检查一次
+//        static int ringFlag = 0;
+//        if (ringFlag == 0)
+//        {
+//            ringFlag = -1;
+//            for (int i = 0; i < (int)currentCloudMsg.fields.size(); ++i)
+//            {
+//                if (currentCloudMsg.fields[i].name == "ring")
+//                {
+//                    ringFlag = 1;
+//                    break;
+//                }
+//            }
+//            if (ringFlag == -1)
+//            {
+//                ROS_ERROR("Point cloud ring channel not available, please configure your point cloud data!");
+//                ros::shutdown();
+//            }
+//        }
+//
+//        // 检查是否存在time通道
+//        if (deskewFlag == 0)
+//        {
+//            deskewFlag = -1;
+//            for (auto &field : currentCloudMsg.fields)
+//            {
+//                if (field.name == "time" || field.name == "t")
+//                {
+//                    deskewFlag = 1;
+//                    break;
+//                }
+//            }
+//            if (deskewFlag == -1)
+//                ROS_WARN("Point cloud timestamp not available, deskew function disabled, system will drift significantly!");
+//        }
 
         return true;
     }
@@ -676,7 +701,13 @@ public:
     void projectPointCloud()
     {
         int cloudSize = laserCloudIn->points.size();
-        
+
+        // 保存ring对应的点，这里假定点是按照次序进入的
+        std::map<int, int> ring_map;
+
+        int count1 = 0;
+        int count2 = 0;
+
         // 遍历当前帧激光点云
         for (int i = 0; i < cloudSize; ++i)
         {
@@ -692,22 +723,26 @@ public:
             if (range < lidarMinRange || range > lidarMaxRange)
                 continue;
 
+            count1 ++;
             // 扫描线检查
             int rowIdn = laserCloudIn->points[i].ring;
             if (rowIdn < 0 || rowIdn >= N_SCAN)
                 continue;
 
             // 扫描线如果有降采样，跳过采样的扫描线这里要跳过
-            if (rowIdn % downsampleRate != 0)
-                continue;
+//            if (rowIdn % downsampleRate != 0)
+//                continue;
 
-            float horizonAngle = atan2(thisPoint.x, thisPoint.y) * 180 / M_PI;
+            int columnIdn = ring_map[rowIdn];
+            ring_map[rowIdn] += 1;
+//            float horizonAngle = atan2(thisPoint.x, thisPoint.y) * 180 / M_PI;
 
             // 水平扫描角度步长，例如一周扫描1800次，则两次扫描间隔角度0.2°
-            static float ang_res_x = 360.0/float(Horizon_SCAN);
-            int columnIdn = -round((horizonAngle-90.0)/ang_res_x) + Horizon_SCAN/2;
-            if (columnIdn >= Horizon_SCAN)
-                columnIdn -= Horizon_SCAN;
+//            static float ang_res_x = 360.0/float(Horizon_SCAN);
+//            int columnIdn = -round((horizonAngle-90.0)/ang_res_x) + Horizon_SCAN/2;
+
+//            if (columnIdn >= Horizon_SCAN)
+//                columnIdn -= Horizon_SCAN;
 
             if (columnIdn < 0 || columnIdn >= Horizon_SCAN)
                 continue;
@@ -715,6 +750,7 @@ public:
             // 已经存过该点，不再处理
             if (rangeMat.at<float>(rowIdn, columnIdn) != FLT_MAX)
                 continue;
+            count2 ++;
 
             // 激光运动畸变校正
             // 利用当前帧起止时刻之间的imu数据计算旋转增量，imu里程计数据计算平移增量，进而将每一时刻激光点位置变换到第一个激光点坐标系下，进行运动补偿
@@ -727,6 +763,8 @@ public:
             int index = columnIdn + rowIdn * Horizon_SCAN;
             fullCloud->points[index] = thisPoint;
         }
+
+//        std::cout << "origin" << laserCloudIn->points.size() << "  count1: " << count1 << "  count2: " << count2 << std::endl;
     }
 
     /**
@@ -759,6 +797,8 @@ public:
             // 记录每根扫描线倒数第5个激光点在一维数组中的索引
             cloudInfo.endRingIndex[i] = count -1 - 5;
         }
+
+//        std::cout << "valid size: " << count << std::endl;
     }
     
     /**

@@ -96,7 +96,6 @@ public:
         subLaserOdometry = nh.subscribe<nav_msgs::Odometry>("lio_sam/mapping/odometry", 5, &TransformFusion::lidarOdometryHandler, this, ros::TransportHints().tcpNoDelay());
         // 订阅imu里程计，来自IMUPreintegration
         subImuOdometry   = nh.subscribe<nav_msgs::Odometry>(odomTopic+"_incremental",   2000, &TransformFusion::imuOdometryHandler,   this, ros::TransportHints().tcpNoDelay());
-
         // 发布imu里程计，用于rviz展示
         pubImuOdometry   = nh.advertise<nav_msgs::Odometry>(odomTopic, 2000);
         // 发布imu里程计轨迹
@@ -566,7 +565,7 @@ public:
         std::lock_guard<std::mutex> lock(mtx);
         // imu原始测量数据转换到lidar系，加速度、角速度、RPY
         sensor_msgs::Imu thisImu = imuConverter(*imu_raw);
-
+ 
         // 添加当前帧imu数据到队列
         imuQueOpt.push_back(thisImu);
         imuQueImu.push_back(thisImu);
@@ -592,7 +591,7 @@ public:
         odometry.header.frame_id = odometryFrame;
         odometry.child_frame_id = "odom_imu";
 
-        // 变换到lidar系
+        // 变换到lidar系  ---> 上一步数据只用了Rotation，这里把Translation也加上
         gtsam::Pose3 imuPose = gtsam::Pose3(currentState.quaternion(), currentState.position());
         gtsam::Pose3 lidarPose = imuPose.compose(imu2Lidar);
 

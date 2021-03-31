@@ -58,7 +58,7 @@ using namespace std;
 typedef pcl::PointXYZI PointType;
 
 // 传感器型号
-enum class SensorType { VELODYNE, OUSTER };
+enum class SensorType { VELODYNE, OUSTER , LIVOX};
 
 class ParamServer
 {
@@ -185,6 +185,10 @@ public:
         {
             sensor = SensorType::OUSTER;
         }
+        else if (sensorStr == "livox")
+        {
+            sensor = SensorType::LIVOX;
+        }
         else
         {
             ROS_ERROR_STREAM(
@@ -256,9 +260,12 @@ public:
         // 加速度，只跟xyz坐标系的旋转有关系
         Eigen::Vector3d acc(imu_in.linear_acceleration.x, imu_in.linear_acceleration.y, imu_in.linear_acceleration.z);
         acc = extRot * acc;
-        imu_out.linear_acceleration.x = acc.x();
-        imu_out.linear_acceleration.y = acc.y();
-        imu_out.linear_acceleration.z = acc.z();
+//        imu_out.linear_acceleration.x = acc.x();
+//        imu_out.linear_acceleration.y = acc.y();
+//        imu_out.linear_acceleration.z = acc.z();
+        imu_out.linear_acceleration.x = 0;
+        imu_out.linear_acceleration.y = 0;
+        imu_out.linear_acceleration.z = 9.4;
         // 角速度，只跟xyz坐标系的旋转有关系
         Eigen::Vector3d gyr(imu_in.angular_velocity.x, imu_in.angular_velocity.y, imu_in.angular_velocity.z);
         gyr = extRot * gyr;
@@ -269,16 +276,20 @@ public:
         Eigen::Quaterniond q_from(imu_in.orientation.w, imu_in.orientation.x, imu_in.orientation.y, imu_in.orientation.z);
         // 为什么是右乘，可以动手画一下看看
         Eigen::Quaterniond q_final = q_from * extQRPY;
-        imu_out.orientation.x = q_final.x();
-        imu_out.orientation.y = q_final.y();
-        imu_out.orientation.z = q_final.z();
-        imu_out.orientation.w = q_final.w();
+//        imu_out.orientation.x = q_final.x();
+//        imu_out.orientation.y = q_final.y();
+//        imu_out.orientation.z = q_final.z();
+//        imu_out.orientation.w = q_final.w();
+      imu_out.orientation.x = 0;
+      imu_out.orientation.y = 0;
+      imu_out.orientation.z = 0;
+      imu_out.orientation.w = 1;
 
-        if (sqrt(q_final.x()*q_final.x() + q_final.y()*q_final.y() + q_final.z()*q_final.z() + q_final.w()*q_final.w()) < 0.1)
-        {
-            ROS_ERROR("Invalid quaternion, please use a 9-axis IMU!");
-            ros::shutdown();
-        }
+//        if (sqrt(q_final.x()*q_final.x() + q_final.y()*q_final.y() + q_final.z()*q_final.z() + q_final.w()*q_final.w()) < 0.1)
+//        {
+//            ROS_ERROR("Invalid quaternion, please use a 9-axis IMU!");
+//            ros::shutdown();
+//        }
 
         return imu_out;
     }
