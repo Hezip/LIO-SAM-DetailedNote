@@ -754,7 +754,7 @@ public:
 
             // 激光运动畸变校正
             // 利用当前帧起止时刻之间的imu数据计算旋转增量，imu里程计数据计算平移增量，进而将每一时刻激光点位置变换到第一个激光点坐标系下，进行运动补偿
-            thisPoint = deskewPoint(&thisPoint, laserCloudIn->points[i].time);
+//            thisPoint = deskewPoint(&thisPoint, laserCloudIn->points[i].time);
 
             // 矩阵存激光点的距离
             rangeMat.at<float>(rowIdn, columnIdn) = range;

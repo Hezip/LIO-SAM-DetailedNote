@@ -265,14 +265,17 @@ public:
 //        imu_out.linear_acceleration.z = acc.z();
         imu_out.linear_acceleration.x = 0;
         imu_out.linear_acceleration.y = 0;
-        imu_out.linear_acceleration.z = 9.4;
+        imu_out.linear_acceleration.z = 0;
         // 角速度，只跟xyz坐标系的旋转有关系
         Eigen::Vector3d gyr(imu_in.angular_velocity.x, imu_in.angular_velocity.y, imu_in.angular_velocity.z);
         gyr = extRot * gyr;
-        imu_out.angular_velocity.x = gyr.x();
-        imu_out.angular_velocity.y = gyr.y();
-        imu_out.angular_velocity.z = gyr.z();
-        // RPY
+//        imu_out.angular_velocity.x = gyr.x();
+//        imu_out.angular_velocity.y = gyr.y();
+//        imu_out.angular_velocity.z = gyr.z();
+      imu_out.angular_velocity.x = 0;
+      imu_out.angular_velocity.y = 0;
+      imu_out.angular_velocity.z = 0;
+      // RPY
         Eigen::Quaterniond q_from(imu_in.orientation.w, imu_in.orientation.x, imu_in.orientation.y, imu_in.orientation.z);
         // 为什么是右乘，可以动手画一下看看
         Eigen::Quaterniond q_final = q_from * extQRPY;

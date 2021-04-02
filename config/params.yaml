@@ -1,13 +1,13 @@
 lio_sam:
 
   # Topics
-  pointCloudTopic: "livox_pcl0"               # Point cloud data
-  imuTopic: "livox/imu"                     # IMU data
+  pointCloudTopic: "/livox/lidar_all"               # Point cloud data
+  imuTopic: "/fake_imu"                     # IMU data
   odomTopic: "odometry/imu"                   # IMU pre-preintegration odometry, same frequency as IMU
   gpsTopic: "odometry/gpsz"                   # GPS odometry topic from navsat, see module_navsat.launch file
 
   # Frames
-  lidarFrame: "base_link"
+  lidarFrame: "velodyne"
   baselinkFrame: "base_link"
   odometryFrame: "odom"
   mapFrame: "map"
@@ -24,8 +24,8 @@ lio_sam:
 
   # Sensor Settings
   sensor: livox                               # lidar sensor type, either 'velodyne' or 'ouster'
-  N_SCAN: 6                                   # number of lidar channel (i.e., 16, 32, 64, 128)
-  Horizon_SCAN: 4000                          # lidar horizontal resolution (Velodyne:1800, Ouster:512,1024,2048)
+  N_SCAN: 1                                   # number of lidar channel (i.e., 16, 32, 64, 128)
+  Horizon_SCAN: 32000                          # lidar horizontal resolution (Velodyne:1800, Ouster:512,1024,2048)
   downsampleRate: 1                           # default: 1. Downsample your data if too many points. i.e., 16 = 64 / 4, 16 = 16 / 1
   lidarMinRange: 0.2                          # default: 1.0, minimum lidar range to be used
   lidarMaxRange: 1000.0                       # default: 1000.0, maximum lidar range to be used
@@ -35,17 +35,17 @@ lio_sam:
   imuGyrNoise: 1.5636343949698187e-03
   imuAccBiasN: 6.4356659353532566e-05
   imuGyrBiasN: 3.5640318696367613e-05
-  imuGravity:  9.40511
+  imuGravity:  0
   imuRPYWeight: 0.01
 
   # Extrinsics (lidar -> IMU)
   extrinsicTrans: [0.0, 0.0, 0.0]
-  # extrinsicRot: [-1, 0, 0,
-  #                 0, 1, 0,
-  #                 0, 0, -1]
-  # extrinsicRPY: [0,  1, 0,
-  #                -1, 0, 0,
-  #                 0, 0, 1]
+#  extrinsicRot: [0.8628071, 0, -0.5055333,
+#                 0, 1, 0,
+#                0.5055333, 0, 0.8628071]
+#  extrinsicRPY: [ 0.8628071, 0, -0.5055333,
+#                  0, 1, 0,
+#                  0.5055333, 0, 0.8628071 ]
   extrinsicRot: [1, 0, 0,
                   0, 1, 0,
                   0, 0, 1]
@@ -54,15 +54,15 @@ lio_sam:
                   0, 0, 1]
 
   # LOAM feature threshold
-  edgeThreshold: 1.0
+  edgeThreshold: 0.25
   surfThreshold: 0.1
   edgeFeatureMinValidNum: 10
   surfFeatureMinValidNum: 100
 
   # voxel filter paprams
-  odometrySurfLeafSize: 0.3                     # default: 0.4 - outdoor, 0.2 - indoor
+  odometrySurfLeafSize: 0.2                     # default: 0.4 - outdoor, 0.2 - indoor
   mappingCornerLeafSize: 0.2                    # default: 0.2 - outdoor, 0.1 - indoor
-  mappingSurfLeafSize: 0.3                      # default: 0.4 - outdoor, 0.2 - indoor
+  mappingSurfLeafSize: 0.2                      # default: 0.4 - outdoor, 0.2 - indoor
 
   # robot motion constraint (in case you are using a 2D robot)
   z_tollerance: 1000                            # meters

@@ -131,14 +131,14 @@ public:
         calculateSmoothness();
 
         // 标记属于遮挡、平行两种情况的点，不做特征提取
-//        markOccludedPoints();
+        markOccludedPoints();
 
         // 点云角点、平面点特征提取
         // 1、遍历扫描线，每根扫描线扫描一周的点云划分为6段，针对每段提取20个角点、不限数量的平面点，加入角点集合、平面点集合
         // 2、认为非角点的点都是平面点，加入平面点云集合，最后降采样
-//        extractFeatures();
+        extractFeatures();
 
-        extractFeaturesLivox();
+//        extractFeaturesLivox();
 
         // 发布角点、面点点云，发布带特征点云数据的当前激光帧点云信息
         publishFeatureCloud();
@@ -239,7 +239,7 @@ public:
             surfaceCloudScan->clear();
 
             // 将一条扫描线扫描一周的点云数据，划分为6段，每段分开提取有限数量的特征，保证特征均匀分布
-            int seg = 15;
+            int seg = 60;
             for (int j = 0; j < seg; j++) {
                 // 每段点云的起始、结束索引；startRingIndex为扫描线起始第5个激光点在一维数组中的索引
                 int sp = (cloudInfo.startRingIndex[i] * (6 - j) + cloudInfo.endRingIndex[i] * j) / seg;
@@ -345,12 +345,13 @@ public:
             // 加入平面点云集合
             *surfaceCloud += *surfaceCloudScanDS;
         }
+        std::cout << "edge: " << cornerCloud->points.size() << "  surf: " << surfaceCloud->points.size() << std::endl;
     }
 
     void extractFeaturesLivox()
     {
-        int cloudSortInd[24000];
-        int N_SCANS = 6;
+        int cloudSortInd[30000];
+        int N_SCANS = 1;
         cornerCloud->clear();
         surfaceCloud->clear();
 

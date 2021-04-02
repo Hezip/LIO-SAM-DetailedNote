@@ -17,4 +17,8 @@
     <!--- Run Rviz-->
     <include file="$(find lio_sam)/launch/include/module_rviz.launch" />
 
+    <include file="$(find lidar_localization)/launch/fake_imu.launch" />
+
+<!--    <node pkg="tf" type="static_transform_publisher" name="map_base_broadcaster" args="1.1 1.4 1.35 0 0.53 0 base_link lidar 100" />-->
+
 </launch>

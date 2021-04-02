@@ -4,6 +4,7 @@ Panels:
     Name: Displays
     Property Tree Widget:
       Expanded:
+        - /Global Options1
         - /links1
         - /Odometry1
         - /Point Cloud1
@@ -316,7 +317,7 @@ Visualization Manager:
           Position Transformer: XYZ
           Queue Size: 10
           Selectable: true
-          Size (Pixels): 3
+          Size (Pixels): 4
           Size (m): 0.009999999776482582
           Style: Points
           Topic: /lio_sam/feature/cloud_surface
@@ -331,8 +332,8 @@ Visualization Manager:
         - Alpha: 0.30000001192092896
           Autocompute Intensity Bounds: false
           Autocompute Value Bounds:
-            Max Value: 11.022093772888184
-            Min Value: -0.3868664503097534
+            Max Value: 8.131095886230469
+            Min Value: 2.1005265712738037
             Value: true
           Axis: Z
           Channel Name: intensity
@@ -504,6 +505,24 @@ Visualization Manager:
           Value: true
       Enabled: true
       Name: Mapping
+    - Alpha: 0.5
+      Cell Size: 1
+      Class: rviz/Grid
+      Color: 160; 160; 164
+      Enabled: true
+      Line Style:
+        Line Width: 0.029999999329447746
+        Value: Lines
+      Name: Grid
+      Normal Cell Count: 0
+      Offset:
+        X: 0
+        Y: 0
+        Z: 0
+      Plane: XY
+      Plane Cell Count: 10
+      Reference Frame: <Fixed Frame>
+      Value: true
   Enabled: true
   Global Options:
     Background Color: 0; 0; 0
@@ -520,25 +539,25 @@ Visualization Manager:
   Views:
     Current:
       Class: rviz/Orbit
-      Distance: 69.7425765991211
+      Distance: 27.48944854736328
       Enable Stereo Rendering:
         Stereo Eye Separation: 0.05999999865889549
         Stereo Focal Distance: 1
         Swap Stereo Eyes: false
         Value: false
       Focal Point:
-        X: 21.8126163482666
-        Y: -12.031124114990234
-        Z: 2.3733015060424805
+        X: 8.181986808776855
+        Y: 0.671849250793457
+        Z: -5.888266563415527
       Focal Shape Fixed Size: false
       Focal Shape Size: 0.05000000074505806
       Invert Z Axis: false
       Name: Current View
       Near Clip Distance: 0.009999999776482582
-      Pitch: 0.5997962951660156
+      Pitch: 1.2597953081130981
       Target Frame: base_link
       Value: Orbit (rviz)
-      Yaw: 2.7916665077209473
+      Yaw: 3.6666576862335205
     Saved: ~
 Window Geometry:
   Displays:

@@ -22,7 +22,7 @@
   <joint name="velodyne_joint" type="fixed">
     <parent link="chassis_link" />
     <child link="velodyne" />
-    <origin xyz="0 0 0" rpy="0 0 0" />
+    <origin xyz="1.1 1.4 1.35" rpy="0 0.53 0" />
   </joint>
 
   <link name="navsat_link"> </link>
