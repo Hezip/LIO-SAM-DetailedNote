@@ -1024,33 +1024,33 @@ public:
         // 用当前帧和前一帧对应的imu里程计计算相对位姿变换，再用前一帧的位姿与相对变换，计算当前帧的位姿，存transformTobeMapped
         static bool lastImuPreTransAvailable = false;
         static Eigen::Affine3f lastImuPreTransformation;
-        if (cloudInfo.odomAvailable == true)
-        {
-            // 当前帧的初始估计位姿（来自imu里程计），后面用来计算增量位姿变换
-            Eigen::Affine3f transBack = pcl::getTransformation(cloudInfo.initialGuessX,    cloudInfo.initialGuessY,     cloudInfo.initialGuessZ, 
-                                                               cloudInfo.initialGuessRoll, cloudInfo.initialGuessPitch, cloudInfo.initialGuessYaw);
-            if (lastImuPreTransAvailable == false)
-            {
-                // 赋值给前一帧
-                lastImuPreTransformation = transBack;
-                lastImuPreTransAvailable = true;
-            } else {
-                // 当前帧相对于前一帧的位姿变换，imu里程计计算得到
-                Eigen::Affine3f transIncre = lastImuPreTransformation.inverse() * transBack;
-                // 前一帧的位姿
-                Eigen::Affine3f transTobe = trans2Affine3f(transformTobeMapped);
-                // 当前帧的位姿
-                Eigen::Affine3f transFinal = transTobe * transIncre;
-                // 更新当前帧位姿transformTobeMapped
-                pcl::getTranslationAndEulerAngles(transFinal, transformTobeMapped[3], transformTobeMapped[4], transformTobeMapped[5], 
-                                                              transformTobeMapped[0], transformTobeMapped[1], transformTobeMapped[2]);
-                // 赋值给前一帧
-                lastImuPreTransformation = transBack;
-
-                lastImuTransformation = pcl::getTransformation(0, 0, 0, cloudInfo.imuRollInit, cloudInfo.imuPitchInit, cloudInfo.imuYawInit); // save imu before return;
-                return;
-            }
-        }
+//        if (cloudInfo.odomAvailable == true)
+//        {
+//            // 当前帧的初始估计位姿（来自imu里程计），后面用来计算增量位姿变换
+//            Eigen::Affine3f transBack = pcl::getTransformation(cloudInfo.initialGuessX,    cloudInfo.initialGuessY,     cloudInfo.initialGuessZ,
+//                                                               cloudInfo.initialGuessRoll, cloudInfo.initialGuessPitch, cloudInfo.initialGuessYaw);
+//            if (lastImuPreTransAvailable == false)
+//            {
+//                // 赋值给前一帧
+//                lastImuPreTransformation = transBack;
+//                lastImuPreTransAvailable = true;
+//            } else {
+//                // 当前帧相对于前一帧的位姿变换，imu里程计计算得到
+//                Eigen::Affine3f transIncre = lastImuPreTransformation.inverse() * transBack;
+//                // 前一帧的位姿
+//                Eigen::Affine3f transTobe = trans2Affine3f(transformTobeMapped);
+//                // 当前帧的位姿
+//                Eigen::Affine3f transFinal = transTobe * transIncre;
+//                // 更新当前帧位姿transformTobeMapped
+//                pcl::getTranslationAndEulerAngles(transFinal, transformTobeMapped[3], transformTobeMapped[4], transformTobeMapped[5],
+//                                                              transformTobeMapped[0], transformTobeMapped[1], transformTobeMapped[2]);
+//                // 赋值给前一帧
+//                lastImuPreTransformation = transBack;
+//
+//                lastImuTransformation = pcl::getTransformation(0, 0, 0, cloudInfo.imuRollInit, cloudInfo.imuPitchInit, cloudInfo.imuYawInit); // save imu before return;
+//                return;
+//            }
+//        }
 
         // 只在第一帧调用（注意上面的return），用imu数据初始化当前帧位姿，仅初始化旋转部分
         if (cloudInfo.imuAvailable == true)
@@ -1059,6 +1059,8 @@ public:
             Eigen::Affine3f transBack = pcl::getTransformation(0, 0, 0, cloudInfo.imuRollInit, cloudInfo.imuPitchInit, cloudInfo.imuYawInit);
             // 当前帧相对于前一帧的姿态变换
             Eigen::Affine3f transIncre = lastImuTransformation.inverse() * transBack;
+            Eigen::Vector3f eulerAngleIncre = transIncre.rotation().eulerAngles(2,1,0);
+            std::cout << "delta yaw --------- mapping: " << eulerAngleIncre(0) * 180 / M_PI << std::endl;
 
             // 前一帧的位姿
             Eigen::Affine3f transTobe = trans2Affine3f(transformTobeMapped);
@@ -1261,7 +1263,7 @@ public:
             cv::Mat matV1(3, 3, CV_32F, cv::Scalar::all(0));
             
             // 要求距离都小于1m
-            if (pointSearchSqDis[4] < 0.4) {
+            if (pointSearchSqDis[4] < 0.3) {
                 // 计算5个点的均值坐标，记为中心点
                 float cx = 0, cy = 0, cz = 0;
                 for (int j = 0; j < 5; j++) {
@@ -1384,7 +1386,7 @@ public:
             matX0.setZero();
 
             // 要求距离都小于1m
-            if (pointSearchSqDis[4] < 0.5) {
+            if (pointSearchSqDis[4] < 0.4) {
                 for (int j = 0; j < 5; j++) {
                     matA0(j, 0) = laserCloudSurfFromMapDS->points[pointSearchInd[j]].x;
                     matA0(j, 1) = laserCloudSurfFromMapDS->points[pointSearchInd[j]].y;

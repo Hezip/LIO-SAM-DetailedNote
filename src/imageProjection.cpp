@@ -340,6 +340,8 @@ public:
                 dst.z = src.z;
                 dst.intensity = src.intensity;
                 int ring = int(src.intensity);
+                // only one ring for mid 100
+//                int ring = 0;
                 dst.ring = ring;
                 dst.time = (src.intensity - ring); //单位是s
             }
