@@ -9,7 +9,6 @@ Panels:
         - /Odometry1
         - /Point Cloud1
         - /Feature Cloud1
-        - /Mapping1
         - /Mapping1/Map (cloud)1
       Splitter Ratio: 0.5600000023841858
     Tree Height: 683
@@ -61,6 +60,13 @@ Visualization Manager:
           Radius: 0.30000001192092896
           Reference Frame: base_link
           Value: true
+        - Class: rviz/Axes
+          Enabled: true
+          Length: 1
+          Name: Lidar
+          Radius: 0.10000000149011612
+          Reference Frame: velodyne
+          Value: true
       Enabled: true
       Name: links
     - Class: rviz/Group
@@ -82,7 +88,7 @@ Visualization Manager:
               Scale: 1
               Value: true
             Value: false
-          Enabled: true
+          Enabled: false
           Keep: 300
           Name: Odom IMU
           Position Tolerance: 0.10000000149011612
@@ -98,7 +104,7 @@ Visualization Manager:
             Value: Axes
           Topic: /odometry/imu
           Unreliable: false
-          Value: true
+          Value: false
         - Angle Tolerance: 0.10000000149011612
           Class: rviz/Odometry
           Covariance:
@@ -116,7 +122,7 @@ Visualization Manager:
               Scale: 1
               Value: true
             Value: false
-          Enabled: true
+          Enabled: false
           Keep: 300
           Name: Odom GPS
           Position Tolerance: 0.10000000149011612
@@ -130,9 +136,9 @@ Visualization Manager:
             Shaft Length: 1
             Shaft Radius: 0.05000000074505806
             Value: Axes
-          Topic: /odometry/gps
+          Topic: /fake_gps_odom
           Unreliable: false
-          Value: true
+          Value: false
         - Angle Tolerance: 0.10000000149011612
           Class: rviz/Odometry
           Covariance:
@@ -167,7 +173,41 @@ Visualization Manager:
           Topic: /lio_sam/mapping/odometry
           Unreliable: false
           Value: false
-      Enabled: false
+        - Angle Tolerance: 0.10000000149011612
+          Class: rviz/Odometry
+          Covariance:
+            Orientation:
+              Alpha: 0.5
+              Color: 255; 255; 127
+              Color Style: Unique
+              Frame: Local
+              Offset: 1
+              Scale: 1
+              Value: true
+            Position:
+              Alpha: 0.30000001192092896
+              Color: 204; 51; 204
+              Scale: 1
+              Value: true
+            Value: true
+          Enabled: false
+          Keep: 300
+          Name: Odom_navsat
+          Position Tolerance: 0.10000000149011612
+          Shape:
+            Alpha: 1
+            Axes Length: 1
+            Axes Radius: 0.10000000149011612
+            Color: 255; 25; 0
+            Head Length: 0.30000001192092896
+            Head Radius: 0.10000000149011612
+            Shaft Length: 1
+            Shaft Radius: 0.05000000074505806
+            Value: Axes
+          Topic: /odometry/navsat
+          Unreliable: false
+          Value: false
+      Enabled: true
       Name: Odometry
     - Class: rviz/Group
       Displays:
@@ -332,8 +372,8 @@ Visualization Manager:
         - Alpha: 0.30000001192092896
           Autocompute Intensity Bounds: false
           Autocompute Value Bounds:
-            Max Value: 8.131095886230469
-            Min Value: 2.1005265712738037
+            Max Value: -0.7694571018218994
+            Min Value: -3.607515573501587
             Value: true
           Axis: Z
           Channel Name: intensity
@@ -539,25 +579,25 @@ Visualization Manager:
   Views:
     Current:
       Class: rviz/Orbit
-      Distance: 27.48944854736328
+      Distance: 12.37952995300293
       Enable Stereo Rendering:
         Stereo Eye Separation: 0.05999999865889549
         Stereo Focal Distance: 1
         Swap Stereo Eyes: false
         Value: false
       Focal Point:
-        X: 8.181986808776855
-        Y: 0.671849250793457
-        Z: -5.888266563415527
+        X: -1.1950515508651733
+        Y: -6.49078893661499
+        Z: 1.2105998992919922
       Focal Shape Fixed Size: false
       Focal Shape Size: 0.05000000074505806
       Invert Z Axis: false
       Name: Current View
       Near Clip Distance: 0.009999999776482582
-      Pitch: 1.2597953081130981
+      Pitch: 0.4547955393791199
       Target Frame: base_link
       Value: Orbit (rviz)
-      Yaw: 3.6666576862335205
+      Yaw: 2.7034897804260254
     Saved: ~
 Window Geometry:
   Displays:

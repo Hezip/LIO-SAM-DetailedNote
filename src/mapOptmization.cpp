@@ -1013,6 +1013,7 @@ public:
             transformTobeMapped[0] = cloudInfo.imuRollInit;
             transformTobeMapped[1] = cloudInfo.imuPitchInit;
             transformTobeMapped[2] = cloudInfo.imuYawInit;
+            std::cout << "----------------------------current yaw: " << cloudInfo.imuYawInit << std::endl;
 
             if (!useImuHeadingInitialization)
                 transformTobeMapped[2] = 0;
@@ -1060,7 +1061,8 @@ public:
             // 当前帧相对于前一帧的姿态变换
             Eigen::Affine3f transIncre = lastImuTransformation.inverse() * transBack;
             Eigen::Vector3f eulerAngleIncre = transIncre.rotation().eulerAngles(2,1,0);
-            std::cout << "delta yaw --------- mapping: " << eulerAngleIncre(0) * 180 / M_PI << std::endl;
+          std::cout << "--------------current yaw: " << cloudInfo.imuYawInit * 180 / M_PI << std::endl;
+//          std::cout << "delta yaw --------- mapping: " << eulerAngleIncre(0) * 180 / M_PI << std::endl;
 
             // 前一帧的位姿
             Eigen::Affine3f transTobe = trans2Affine3f(transformTobeMapped);
@@ -1784,7 +1786,7 @@ public:
             return;
         else
         {
-            if (pointDistance(cloudKeyPoses3D->front(), cloudKeyPoses3D->back()) < 5.0)
+            if (pointDistance(cloudKeyPoses3D->front(), cloudKeyPoses3D->back()) < 2.0)
                 return;
         }
 

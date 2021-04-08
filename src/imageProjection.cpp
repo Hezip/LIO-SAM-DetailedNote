@@ -416,7 +416,7 @@ public:
         // 要求imu数据包含激光数据，否则不往下处理了
         if (imuQueue.empty() || imuQueue.front().header.stamp.toSec() > timeScanCur || imuQueue.back().header.stamp.toSec() < timeScanEnd)
         {
-            ROS_DEBUG("Waiting for IMU data ...");
+            ROS_ERROR("Waiting for IMU data ...");
             return false;
         }
 
@@ -466,8 +466,12 @@ public:
             double currentImuTime = thisImuMsg.header.stamp.toSec();
 
             // 提取imu姿态角RPY，作为当前lidar帧初始姿态角
-            if (currentImuTime <= timeScanCur)
-                imuRPY2rosRPY(&thisImuMsg, &cloudInfo.imuRollInit, &cloudInfo.imuPitchInit, &cloudInfo.imuYawInit);
+//            std::cout << std::fixed << currentImuTime << std::endl;
+//            std::cout << std::fixed << timeScanCur << std::endl;
+            if (currentImuTime <= timeScanCur) {
+              imuRPY2rosRPY(&thisImuMsg, &cloudInfo.imuRollInit, &cloudInfo.imuPitchInit, &cloudInfo.imuYawInit);
+//              std::cout << "------------imgPjct yaw: " << cloudInfo.imuYawInit / M_PI * 180 << std::endl;
+            }
 
             // 超过当前激光帧结束时刻0.01s，结束
             if (currentImuTime > timeScanEnd + 0.01)
