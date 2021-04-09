@@ -47,6 +47,8 @@ Date: 2021-02-21
 
 #include <gtsam/nonlinear/ISAM2.h>
 
+#include <boost/filesystem.hpp>
+
 using namespace gtsam;
 
 using symbol_shorthand::X; // Pose3 (x,y,z,r,p,y)
@@ -54,6 +56,8 @@ using symbol_shorthand::V; // Vel   (xdot,ydot,zdot)
 using symbol_shorthand::B; // Bias  (ax,ay,az,gx,gy,gz)
 using symbol_shorthand::G; // GPS pose
 
+std::string file_path = "/home/he/slam_data/trajectory/odom.txt";
+std::ofstream odom_ofs_;
 
 /**
  * 6D位姿点云结构定义
@@ -2039,6 +2043,12 @@ public:
         pose_stamped.pose.orientation.w = q.w();
 
         globalPath.poses.push_back(pose_stamped);
+
+      //输出数据
+      odom_ofs_ << std::fixed << pose_in.time << " " << pose_stamped.pose.position.x << " " << pose_stamped.pose.position.y
+      << " " << pose_stamped.pose.position.z << " " << q.x() << " " << q.y()
+      << " " << q.z() << " " << q.w() << std::endl;
+
     }
 
     /**
@@ -2166,6 +2176,8 @@ public:
 int main(int argc, char** argv)
 {
     ros::init(argc, argv, "lio_sam");
+
+  odom_ofs_.open(file_path.c_str(), std::ios::out);
 
     mapOptimization MO;
 

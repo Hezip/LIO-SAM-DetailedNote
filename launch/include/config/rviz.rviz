@@ -7,6 +7,7 @@ Panels:
         - /Global Options1
         - /links1
         - /Odometry1
+        - /Odometry1/Odom GPS1
         - /Point Cloud1
         - /Feature Cloud1
         - /Mapping1/Map (cloud)1
@@ -122,7 +123,7 @@ Visualization Manager:
               Scale: 1
               Value: true
             Value: false
-          Enabled: false
+          Enabled: true
           Keep: 300
           Name: Odom GPS
           Position Tolerance: 0.10000000149011612
@@ -135,10 +136,10 @@ Visualization Manager:
             Head Radius: 0.10000000149011612
             Shaft Length: 1
             Shaft Radius: 0.05000000074505806
-            Value: Axes
+            Value: Arrow
           Topic: /fake_gps_odom
           Unreliable: false
-          Value: false
+          Value: true
         - Angle Tolerance: 0.10000000149011612
           Class: rviz/Odometry
           Covariance:
@@ -372,8 +373,8 @@ Visualization Manager:
         - Alpha: 0.30000001192092896
           Autocompute Intensity Bounds: false
           Autocompute Value Bounds:
-            Max Value: -0.7694571018218994
-            Min Value: -3.607515573501587
+            Max Value: -0.8771807551383972
+            Min Value: -3.4693784713745117
             Value: true
           Axis: Z
           Channel Name: intensity
@@ -586,18 +587,18 @@ Visualization Manager:
         Swap Stereo Eyes: false
         Value: false
       Focal Point:
-        X: -1.1950515508651733
-        Y: -6.49078893661499
-        Z: 1.2105998992919922
+        X: 1.1804077625274658
+        Y: -2.0808298587799072
+        Z: 1.122802734375
       Focal Shape Fixed Size: false
       Focal Shape Size: 0.05000000074505806
       Invert Z Axis: false
       Name: Current View
       Near Clip Distance: 0.009999999776482582
-      Pitch: 0.4547955393791199
+      Pitch: 0.9497950673103333
       Target Frame: base_link
       Value: Orbit (rviz)
-      Yaw: 2.7034897804260254
+      Yaw: 4.1234941482543945
     Saved: ~
 Window Geometry:
   Displays:
