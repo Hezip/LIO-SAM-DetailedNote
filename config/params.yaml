@@ -14,7 +14,7 @@ lio_sam:
 
   # GPS Settings
   useImuHeadingInitialization: true           # if using GPS data, set to "true"
-  useGpsElevation: false                      # if GPS elevation is bad, set to "false"
+  useGpsElevation: true                      # if GPS elevation is bad, set to "false"
   gpsCovThreshold: 2.0                        # m^2, threshold for using GPS data
   poseCovThreshold: 1.0                      # m^2, threshold for using GPS data
   
@@ -39,13 +39,13 @@ lio_sam:
   imuRPYWeight: 0.01
 
   # Extrinsics (lidar -> IMU)  T_lidar_imu ???
-  extrinsicTrans: [1.1, 1.4, 1.35]
+  extrinsicTrans: [1.0, 1.0, 1.35]
 #  extrinsicRot: [0.8628071, 0, 0.5055333,
 #                 0, 1, 0,
 #                -0.5055333, 0, 0.8628071]
-  extrinsicRPY: [0.8628071, 0, 0.5055333,
-                 0, 1, 0,
-                -0.5055333, 0, 0.8628071]
+  extrinsicRPY: [0.8625374, -0.0215679, 0.5055333,
+                 0.0249974, 0.9996875, 0,
+                 -0.5053754, 0.0126370, 0.8628071]
   extrinsicRot: [1, 0, 0,
                   0, 1, 0,
                   0, 0, 1]
@@ -89,8 +89,8 @@ lio_sam:
 
   # Visualization
   globalMapVisualizationSearchRadius: 1000.0    # meters, global map visualization radius
-  globalMapVisualizationPoseDensity: 10.0       # meters, global map visualization keyframe density
-  globalMapVisualizationLeafSize: 1.0           # meters, global map visualization cloud density
+  globalMapVisualizationPoseDensity: 1.0       # meters, global map visualization keyframe density
+  globalMapVisualizationLeafSize: 0.05           # meters, global map visualization cloud density
 
 
 
