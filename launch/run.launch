@@ -17,7 +17,7 @@
     <!--- Run Rviz-->
     <include file="$(find lio_sam)/launch/include/module_rviz.launch" />
 
-    <include file="$(find lidar_localization)/launch/fake_imu.launch" />
+<!--    <include file="$(find lidar_localization)/launch/fake_imu.launch" />-->
 
     <include file="$(find lidar_localization)/launch/fake_gps_odom.launch" />
 

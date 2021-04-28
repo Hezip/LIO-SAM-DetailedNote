@@ -239,7 +239,7 @@ public:
             surfaceCloudScan->clear();
 
             // 将一条扫描线扫描一周的点云数据，划分为6段，每段分开提取有限数量的特征，保证特征均匀分布
-            int seg = 60;
+            int seg = 70;
             for (int j = 0; j < seg; j++) {
                 // 每段点云的起始、结束索引；startRingIndex为扫描线起始第5个激光点在一维数组中的索引
                 int sp = (cloudInfo.startRingIndex[i] * (6 - j) + cloudInfo.endRingIndex[i] * j) / seg;
@@ -345,6 +345,11 @@ public:
             // 加入平面点云集合
             *surfaceCloud += *surfaceCloudScanDS;
         }
+
+      // 平面点云降采样
+      downSizeFilter.setInputCloud(cornerCloud);
+      downSizeFilter.filter(*cornerCloud);
+
         std::cout << "edge: " << cornerCloud->points.size() << "  surf: " << surfaceCloud->points.size() << std::endl;
     }
 

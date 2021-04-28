@@ -85,7 +85,7 @@ public:
                 tfListener.waitForTransform(lidarFrame, baselinkFrame, ros::Time(0), ros::Duration(3.0));
                 // lidar系到baselink系的变换
                 tfListener.lookupTransform(lidarFrame, baselinkFrame, ros::Time(0), lidar2Baselink);
-            }
+           }
             catch (tf::TransformException ex)
             {
                 ROS_ERROR("%s",ex.what());
@@ -443,7 +443,7 @@ public:
             if (imuTime < currentCorrectionTime - delta_t)
             {
                 // 两帧imu数据时间间隔
-                double dt = (lastImuT_opt < 0) ? (1.0 / 500.0) : (imuTime - lastImuT_opt);
+                double dt = (lastImuT_opt < 0) ? (1.0 / 100.0) : (imuTime - lastImuT_opt);
                 // imu预积分数据输入：加速度、角速度、dt
                 imuIntegratorOpt_->integrateMeasurement(
                         gtsam::Vector3(thisImu->linear_acceleration.x, thisImu->linear_acceleration.y, thisImu->linear_acceleration.z),
@@ -520,7 +520,7 @@ public:
             {
                 sensor_msgs::Imu *thisImu = &imuQueImu[i];
                 double imuTime = ROS_TIME(thisImu);
-                double dt = (lastImuQT < 0) ? (1.0 / 500.0) :(imuTime - lastImuQT);
+                double dt = (lastImuQT < 0) ? (1.0 / 100.0) :(imuTime - lastImuQT);
 
                 imuIntegratorImu_->integrateMeasurement(gtsam::Vector3(thisImu->linear_acceleration.x, thisImu->linear_acceleration.y, thisImu->linear_acceleration.z),
                                                         gtsam::Vector3(thisImu->angular_velocity.x,    thisImu->angular_velocity.y,    thisImu->angular_velocity.z), dt);
@@ -575,16 +575,17 @@ public:
             return;
 
         double imuTime = ROS_TIME(&thisImu);
-        double dt = (lastImuT_imu < 0) ? (1.0 / 500.0) : (imuTime - lastImuT_imu);
+        double dt = (lastImuT_imu < 0) ? (1.0 / 100.0) : (imuTime - lastImuT_imu);
         lastImuT_imu = imuTime;
 
         // imu预积分器添加一帧imu数据，注：这个预积分器的起始时刻是上一帧激光里程计时刻
+//        std::cout << "X: " << thisImu.linear_acceleration.x << " Y: " << thisImu.linear_acceleration.y << std::endl;
         imuIntegratorImu_->integrateMeasurement(gtsam::Vector3(thisImu.linear_acceleration.x, thisImu.linear_acceleration.y, thisImu.linear_acceleration.z),
                                                 gtsam::Vector3(thisImu.angular_velocity.x,    thisImu.angular_velocity.y,    thisImu.angular_velocity.z), dt);
 
         // 用上一帧激光里程计时刻对应的状态、偏置，施加从该时刻开始到当前时刻的imu预计分量，得到当前时刻的状态
         gtsam::NavState currentState = imuIntegratorImu_->predict(prevStateOdom, prevBiasOdom);
-
+//        std::cout << prevBiasOdom.vector() << std::endl;
         // 发布imu里程计（转到lidar系，与激光里程计同一个系）
         nav_msgs::Odometry odometry;
         odometry.header.stamp = thisImu.header.stamp;
@@ -593,6 +594,7 @@ public:
 
         // 变换到lidar系  ---> 上一步数据只用了Rotation，这里把Translation也加上
         gtsam::Pose3 imuPose = gtsam::Pose3(currentState.quaternion(), currentState.position());
+//        std::cout << "px: " << imuPose.translation().x() << " py: " << imuPose.translation().y() << std::endl;
         gtsam::Pose3 lidarPose = imuPose.compose(imu2Lidar);
 
         odometry.pose.pose.position.x = lidarPose.translation().x();

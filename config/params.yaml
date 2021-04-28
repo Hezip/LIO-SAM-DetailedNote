@@ -2,9 +2,9 @@ lio_sam:
 
   # Topics
   pointCloudTopic: "/livox/lidar_all"               # Point cloud data
-  imuTopic: "/fake_imu"                     # IMU data
+  imuTopic: "/imu"                     # IMU data
   odomTopic: "odometry/imu"                   # IMU pre-preintegration odometry, same frequency as IMU
-  gpsTopic: "/fake_gps_odom"                   # GPS odometry topic from navsat, see module_navsat.launch file
+  gpsTopic: "/fake_gps_odom123123"                   # GPS odometry topic from navsat, see module_navsat.launch file
 
   # Frames
   lidarFrame: "velodyne"
@@ -13,9 +13,9 @@ lio_sam:
   mapFrame: "map"
 
   # GPS Settings
-  useImuHeadingInitialization: true           # if using GPS data, set to "true"
+  useImuHeadingInitialization: false          # if using GPS data, set to "true"
   useGpsElevation: true                      # if GPS elevation is bad, set to "false"
-  gpsCovThreshold: 2.0                        # m^2, threshold for using GPS data
+  gpsCovThreshold: 2.0                       # m^2, threshold for using GPS data
   poseCovThreshold: 1.0                      # m^2, threshold for using GPS data
   
   # Export settings
@@ -38,34 +38,50 @@ lio_sam:
   imuGravity:  0
   imuRPYWeight: 0.01
 
-  # Extrinsics (lidar -> IMU)  T_lidar_imu ???
-  extrinsicTrans: [1.0, 1.0, 1.35]
-#  extrinsicRot: [0.8628071, 0, 0.5055333,
-#                 0, 1, 0,
-#                -0.5055333, 0, 0.8628071]
-  extrinsicRPY: [0.8625374, -0.0215679, 0.5055333,
-                 0.0249974, 0.9996875, 0,
-                 -0.5053754, 0.0126370, 0.8628071]
-  extrinsicRot: [1, 0, 0,
-                  0, 1, 0,
-                  0, 0, 1]
+  # Extrinsics (lidar -> IMU) T_lidar_imu
+  extrinsicTrans: [-2.65, 0.08, -3.77]
+  extrinsicRot: [ 0.836463,    0,    0.548024,
+                  0,    -1,    0,
+                  0.548024,    0,   -0.836463 ]
+  extrinsicRPY: [ 0.836463,    0,   0.548024,
+                  0,    -1,    0,
+                  0.548024,    0,   -0.836463 ]
+
+#  extrinsicTrans: [ 2.28, 2.08, -1.7 ]
+#  extrinsicRot: [ -0.836201, 0.00306914,  -0.548414,
+#                  0.0209094,   0.999436, -0.0262886,
+#                  0.548024, -0.0334496,  -0.835794 ]
+#  extrinsicRPY: [ -0.836201, 0.00306914,  -0.548414,
+#                  0.0209094,   0.999436, -0.0262886,
+#                  0.548024, -0.0334496,  -0.835794 ]
+#  extrinsicTrans: [ 2.65768, -2.13433, 0.0931637 ]
+#  extrinsicRot: [ -0.836201,  0.0209094,   0.548024,
+#                  0.00306914,   0.999436, -0.0334496,
+#                  -0.548414, -0.0262886,  -0.835794 ]
+#  extrinsicRPY: [ -0.836201,  0.0209094,   0.548024,
+#                  0.00306914,   0.999436, -0.0334496,
+#                  -0.548414, -0.0262886,  -0.835794 ]
+
+  #  extrinsicRot: [1, 0, 0,
+#                  0, 1, 0,
+#                  0, 0, 1]
 #  extrinsicRPY: [1, 0, 0,
 #                  0, 1, 0,
 #                  0, 0, 1]
 
   # LOAM feature threshold
-  edgeThreshold: 0.25
-  surfThreshold: 0.10
+  edgeThreshold: 0.30
+  surfThreshold: 0.1
   edgeFeatureMinValidNum: 10
   surfFeatureMinValidNum: 100
 
   # voxel filter paprams
-  odometrySurfLeafSize: 0.10                     # default: 0.4 - outdoor, 0.2 - indoor
-  mappingCornerLeafSize: 0.10                    # default: 0.2 - outdoor, 0.1 - indoor
-  mappingSurfLeafSize: 0.10                      # default: 0.4 - outdoor, 0.2 - indoor
+  odometrySurfLeafSize: 0.2                     # default: 0.4 - outdoor, 0.2 - indoor
+  mappingCornerLeafSize: 0.03                    # default: 0.2 - outdoor, 0.1 - indoor
+  mappingSurfLeafSize: 0.1                       # default: 0.4 - outdoor, 0.2 - indoor
 
   # robot motion constraint (in case you are using a 2D robot)
-  z_tollerance: 1000                            # meters
+  z_tollerance: 0.1                             # meters
   rotation_tollerance: 1000                     # radians
 
   # CPU Params
@@ -89,7 +105,7 @@ lio_sam:
 
   # Visualization
   globalMapVisualizationSearchRadius: 1000.0    # meters, global map visualization radius
-  globalMapVisualizationPoseDensity: 1.0       # meters, global map visualization keyframe density
+  globalMapVisualizationPoseDensity: 0.2       # meters, global map visualization keyframe density
   globalMapVisualizationLeafSize: 0.05           # meters, global map visualization cloud density
 
 
