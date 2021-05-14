@@ -1,0 +1,10 @@
+<launch>
+
+<!--    Lidar Driver-->
+    <include file="$(find livox_ros_driver)/launch/livox_lidar_msg.launch" />
+    <node pkg="livox_repub" type="livox_repub" name="livox_repub" output="screen" />
+
+<!--    IMU Driver-->
+    <include file="$(find ros_mscl)/launch/microstrain.launch" />
+
+</launch>

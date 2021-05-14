@@ -1279,7 +1279,7 @@ class mapOptimization : public ParamServer {
       cv::Mat matV1(3, 3, CV_32F, cv::Scalar::all(0));
 
       // 要求距离都小于1m
-      if (pointSearchSqDis[4] < 0.3) {
+      if (pointSearchSqDis[4] < 0.5) {
         // 计算5个点的均值坐标，记为中心点
         float cx = 0, cy = 0, cz = 0;
         for (int j = 0; j < 5; j++) {
@@ -1419,7 +1419,7 @@ class mapOptimization : public ParamServer {
       matX0.setZero();
 
       // 要求距离都小于1m
-      if (pointSearchSqDis[4] < 0.4) {
+      if (pointSearchSqDis[4] < 0.5) {
         for (int j = 0; j < 5; j++) {
           matA0(j, 0) = laserCloudSurfFromMapDS->points[pointSearchInd[j]].x;
           matA0(j, 1) = laserCloudSurfFromMapDS->points[pointSearchInd[j]].y;
@@ -1485,13 +1485,13 @@ class mapOptimization : public ParamServer {
   */
   void combineOptimizationCoeffs() {
     // 遍历当前帧角点集合，提取出与局部map匹配上了的角点
-        int count_edge = 0;
-        int count_surf = 0;
+//        int count_edge = 0;
+//        int count_surf = 0;
     for (int i = 0; i < laserCloudCornerLastDSNum; ++i) {
       if (laserCloudOriCornerFlag[i] == true) {
         laserCloudOri->push_back(laserCloudOriCornerVec[i]);
         coeffSel->push_back(coeffSelCornerVec[i]);
-                count_edge ++;
+//                count_edge ++;
       }
     }
     // 遍历当前帧平面点集合，提取出与局部map匹配上了的平面点
@@ -1499,10 +1499,10 @@ class mapOptimization : public ParamServer {
       if (laserCloudOriSurfFlag[i] == true) {
         laserCloudOri->push_back(laserCloudOriSurfVec[i]);
         coeffSel->push_back(coeffSelSurfVec[i]);
-                count_surf ++;
+//                count_surf ++;
       }
     }
-    std::cout << "Op edge: " << count_edge << "  Op surf: " << count_surf << std::endl;
+//    std::cout << "Op edge: " << count_edge << "  Op surf: " << count_surf << std::endl;
     // 清空标记
     std::fill(laserCloudOriCornerFlag.begin(), laserCloudOriCornerFlag.end(), false);
     std::fill(laserCloudOriSurfFlag.begin(), laserCloudOriSurfFlag.end(), false);

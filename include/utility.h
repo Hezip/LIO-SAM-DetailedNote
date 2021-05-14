@@ -248,113 +248,51 @@ class ParamServer {
     usleep(100);
   }
 
+
   /**
    * imu原始测量数据转换到lidar系，加速度、角速度、RPY
   */
-  sensor_msgs::Imu imuConverter(const sensor_msgs::Imu &imu_in) {
+  sensor_msgs::Imu imuConverter(const sensor_msgs::Imu& imu_in)
+  {
     sensor_msgs::Imu imu_out = imu_in;
     // 加速度，只跟xyz坐标系的旋转有关系
-//        Eigen::Vector3d acc(imu_in.linear_acceleration.x, imu_in.linear_acceleration.y, imu_in.linear_acceleration.z);
-    double w = imu_in.angular_velocity.z / 180 * M_PI;
-    double acc_x = imu_in.linear_acceleration.x - 4.36 * w * w;
-    double acc_y = imu_in.linear_acceleration.y - 0.16 * w * w;
-
-    // 臂长标定 (后续可以加上角度标定)  3.36 1.16
-//    static double count = 0, l_x = 0, l_y = 0;
-//    l_x += imu_in.linear_acceleration.x / (w * w);
-//    l_y += imu_in.linear_acceleration.y / (w * w);
-//    count++;
-//    std::cout << "l_x: " << l_x/count << " l_y: " << l_y/count << std::endl;
-
-    Eigen::Vector3d acc(acc_x, acc_y, 0);
-//    std::cout << "acc_X: " << acc.x() << " acc_Y: " << acc.y() << std::endl;
+    Eigen::Vector3d acc(imu_in.linear_acceleration.x, imu_in.linear_acceleration.y, imu_in.linear_acceleration.z);
     acc = extRot * acc;
     imu_out.linear_acceleration.x = acc.x();
     imu_out.linear_acceleration.y = acc.y();
     imu_out.linear_acceleration.z = acc.z();
-//    imu_out.linear_acceleration.x = 0;
-//    imu_out.linear_acceleration.y = 0;
-//    imu_out.linear_acceleration.z = 0;
     // 角速度，只跟xyz坐标系的旋转有关系
-//        Eigen::Vector3d gyr(imu_in.angular_velocity.x, imu_in.angular_velocity.y, imu_in.angular_velocity.z);
-    Eigen::Vector3d gyr(imu_in.angular_velocity.x / 180 * M_PI,
-                        imu_in.angular_velocity.y / 180 * M_PI,
-                        imu_in.angular_velocity.z / 180 * M_PI);
+    Eigen::Vector3d gyr(imu_in.angular_velocity.x, imu_in.angular_velocity.y, imu_in.angular_velocity.z);
     gyr = extRot * gyr;
     imu_out.angular_velocity.x = gyr.x();
     imu_out.angular_velocity.y = gyr.y();
     imu_out.angular_velocity.z = gyr.z();
-//      imu_out.angular_velocity.x = 0;
-//      imu_out.angular_velocity.y = 0;
-//      imu_out.angular_velocity.z = 0;
     // RPY
-//        Eigen::Quaterniond q_from(imu_in.orientation.w, imu_in.orientation.x, imu_in.orientation.y, imu_in.orientation.z);
-    Eigen::Quaterniond q_from(0, 1, 0, 0);
+    Eigen::Quaterniond q_from(imu_in.orientation.w, imu_in.orientation.x, imu_in.orientation.y, imu_in.orientation.z);
+    // 旋转矩阵到欧拉角这样做会有对称性问题 需要更改
+    Eigen::Vector3d eulerAngle=q_from.matrix().eulerAngles(2,1,0);
+    eulerAngle[0] *= -1;
+    eulerAngle[1] *= 1;
+    eulerAngle[2] *= -1;
+    Eigen::AngleAxisd rollAngle(Eigen::AngleAxisd(eulerAngle(2),Eigen::Vector3d::UnitX()));
+    Eigen::AngleAxisd pitchAngle(Eigen::AngleAxisd(eulerAngle(1),Eigen::Vector3d::UnitY()));
+    Eigen::AngleAxisd yawAngle(Eigen::AngleAxisd(eulerAngle(0),Eigen::Vector3d::UnitZ()));
+    Eigen::Quaterniond quaternion;
+    quaternion=yawAngle*pitchAngle*rollAngle;
+    Eigen::Quaterniond q_final = quaternion * extQRPY;
     // 为什么是右乘，可以动手画一下看看
-//        Eigen::Quaterniond q_final = q_from;
-    Eigen::Quaterniond q_final = q_from * extQRPY;
+//    Eigen::Quaterniond q_final = q_from * extQRPY;
+    q_final.normalize();
     imu_out.orientation.x = q_final.x();
     imu_out.orientation.y = q_final.y();
     imu_out.orientation.z = q_final.z();
     imu_out.orientation.w = q_final.w();
-//      imu_out.orientation.x = 0;
-//      imu_out.orientation.y = 0;
-//      imu_out.orientation.z = 0;
-//      imu_out.orientation.w = 1;
 
-    if (sqrt(
-        q_final.x() * q_final.x() + q_final.y() * q_final.y() + q_final.z() * q_final.z() + q_final.w() * q_final.w())
-        < 0.1) {
+    if (sqrt(q_final.x()*q_final.x() + q_final.y()*q_final.y() + q_final.z()*q_final.z() + q_final.w()*q_final.w()) < 0.1)
+    {
       ROS_ERROR("Invalid quaternion, please use a 9-axis IMU!");
       ros::shutdown();
     }
-
-    //中值积分
-//    static sensor_msgs::Imu imu_last;
-//    static sensor_msgs::Imu imu_now;
-//    static Eigen::Quaterniond Qwb(1, 0, 0, 0);
-//    static Eigen::Vector3d Pwb(0, 0, 0);
-//    static Eigen::Vector3d Vw(0, 0, 0);
-//    static Eigen::Vector3d gw(0, 0, 0);
-//    static Eigen::Vector3d temp_a;
-//    static Eigen::Vector3d theta;
-//    static bool init = false;
-//    if (!init) {
-//      init = true;
-//      imu_now = imu_out;
-//    } else {
-//      imu_last = imu_now;
-//      imu_now = imu_out;
-//      double dt = 0.01;
-//      //delta_q = [1 , 1/2 * thetax , 1/2 * theta_y, 1/2 * theta_z]
-//      Eigen::Vector3d gyro(imu_now.angular_velocity.x, imu_now.angular_velocity.y, imu_now.angular_velocity.z);
-//      Eigen::Vector3d gyro_(imu_last.angular_velocity.x, imu_last.angular_velocity.y, imu_last.angular_velocity.z);
-//      Eigen::Quaterniond dq;
-//      // i时刻与i-1时刻的gyro相加后除以2,得到中值角速度
-//      Eigen::Vector3d dtheta_half = 0.5 * (gyro + gyro_) * dt / 2.0;
-//      dq.w() = 1;
-//      dq.x() = dtheta_half.x();
-//      dq.y() = dtheta_half.y();
-//      dq.z() = dtheta_half.z();
-//      // 得到i时刻的旋转并归一化
-//      Eigen::Quaterniond Qwb_i = Qwb*dq;
-//      Qwb_i.normalize();
-//      // Qwb对应i-1时刻, Qwb_i对应i时刻.
-//      // i时刻与i-1时刻加速度相加后除以2,得到中值加速度
-//      Eigen::Vector3d acc_i(imu_now.linear_acceleration.x, imu_now.linear_acceleration.y, imu_now.linear_acceleration.z);
-//      Eigen::Vector3d acc_(imu_last.linear_acceleration.x, imu_last.linear_acceleration.y, imu_last.linear_acceleration.z);
-//      Eigen::Vector3d acc_w = (Qwb * acc_ + Qwb_i * acc_i) * 0.5 + gw;
-//      // {body}系角速度转为{world}系角速度
-//      Qwb = Qwb_i ;
-//      // {body}系中点在{world}系中的坐标的刷新( p_w' = p_w + v_w*t + 0.5*t*t*a_w )
-//      Pwb = Pwb + Vw * dt + 0.5 * dt * dt * acc_w;
-//      // {body}系中的点在{world}系中的速度刷新( v_w' = v_w + a_w*t)
-//      Vw = Vw + acc_w * dt;
-//      //保存数据
-//      imu_ofs_ << std::fixed << ros::Time::now().toSec() << " " << Pwb(0) << " " << Pwb(1) << " " << Pwb(2)
-//               << " " << Qwb.x() << " " << Qwb.y() << " " << Qwb.z() << " " << Qwb.w() << std::endl;
-//    }
-
 
     return imu_out;
   }

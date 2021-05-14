@@ -10,6 +10,7 @@ Panels:
         - /Point Cloud1
         - /Feature Cloud1
         - /Mapping1
+        - /Mapping1/Map (cloud)1
       Splitter Ratio: 0.5600000023841858
     Tree Height: 683
   - Class: rviz/Selection
@@ -47,33 +48,33 @@ Visualization Manager:
           Update Interval: 0
           Value: false
         - Class: rviz/Axes
-          Enabled: true
+          Enabled: false
           Length: 2
           Name: map
           Radius: 0.5
           Reference Frame: map
-          Value: true
+          Value: false
         - Class: rviz/Axes
           Enabled: true
-          Length: 1
+          Length: 0.5
           Name: base_link
-          Radius: 0.30000001192092896
+          Radius: 0.20000000298023224
           Reference Frame: base_link
           Value: true
         - Class: rviz/Axes
-          Enabled: true
+          Enabled: false
           Length: 1
           Name: Lidar
           Radius: 0.10000000149011612
           Reference Frame: velodyne
-          Value: true
+          Value: false
         - Class: rviz/Axes
-          Enabled: true
+          Enabled: false
           Length: 1
           Name: IMU
           Radius: 0.10000000149011612
           Reference Frame: imu_link
-          Value: true
+          Value: false
       Enabled: true
       Name: links
     - Class: rviz/Group
@@ -281,21 +282,21 @@ Visualization Manager:
         - Alpha: 1
           Autocompute Intensity Bounds: true
           Autocompute Value Bounds:
-            Max Value: 10
-            Min Value: -10
+            Max Value: 2.094130516052246
+            Min Value: -14.807424545288086
             Value: true
           Axis: Z
           Channel Name: intensity
           Class: rviz/PointCloud2
-          Color: 255; 255; 255
-          Color Transformer: Intensity
-          Decay Time: 0
+          Color: 136; 138; 133
+          Color Transformer: FlatColor
+          Decay Time: 1000
           Enabled: false
           Invert Rainbow: false
           Max Color: 255; 255; 255
-          Max Intensity: 5.099978923797607
+          Max Intensity: 0.10000000149011612
           Min Color: 0; 0; 0
-          Min Intensity: 2.0855211914749816e-5
+          Min Intensity: 0
           Name: Livox
           Position Transformer: XYZ
           Queue Size: 10
@@ -376,18 +377,18 @@ Visualization Manager:
       Name: Feature Cloud
     - Class: rviz/Group
       Displays:
-        - Alpha: 0.30000001192092896
+        - Alpha: 0.800000011920929
           Autocompute Intensity Bounds: false
           Autocompute Value Bounds:
-            Max Value: -0.6267333626747131
-            Min Value: -3.8646814823150635
+            Max Value: 2.048776149749756
+            Min Value: -0.8731476068496704
             Value: true
           Axis: Z
           Channel Name: intensity
           Class: rviz/PointCloud2
           Color: 255; 255; 255
           Color Transformer: AxisColor
-          Decay Time: 300
+          Decay Time: 1e+9
           Enabled: true
           Invert Rainbow: false
           Max Color: 255; 255; 255
@@ -398,7 +399,7 @@ Visualization Manager:
           Position Transformer: XYZ
           Queue Size: 10
           Selectable: false
-          Size (Pixels): 2
+          Size (Pixels): 1.2000000476837158
           Size (m): 0.009999999776482582
           Style: Points
           Topic: /lio_sam/mapping/cloud_registered
@@ -586,25 +587,25 @@ Visualization Manager:
   Views:
     Current:
       Class: rviz/Orbit
-      Distance: 21.96036148071289
+      Distance: 36.96006393432617
       Enable Stereo Rendering:
         Stereo Eye Separation: 0.05999999865889549
         Stereo Focal Distance: 1
         Swap Stereo Eyes: false
         Value: false
       Focal Point:
-        X: 5.33906364440918
-        Y: 7.446552276611328
-        Z: -5.1354289054870605
+        X: -2.4581899642944336
+        Y: -4.138686180114746
+        Z: -3.30177903175354
       Focal Shape Fixed Size: false
       Focal Shape Size: 0.05000000074505806
       Invert Z Axis: false
       Name: Current View
       Near Clip Distance: 0.009999999776482582
-      Pitch: 1.1897974014282227
+      Pitch: 0.8847969770431519
       Target Frame: base_link
       Value: Orbit (rviz)
-      Yaw: 3.5940041542053223
+      Yaw: 1.9621798992156982
     Saved: ~
 Window Geometry:
   Displays:
@@ -620,5 +621,5 @@ Window Geometry:
   Views:
     collapsed: true
   Width: 1853
-  X: 1267
-  Y: 625
+  X: 67
+  Y: 27

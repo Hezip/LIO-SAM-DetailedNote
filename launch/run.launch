@@ -1,7 +1,15 @@
 <launch>
 
     <arg name="project" default="lio_sam"/>
-    
+
+    <!--    Lidar Driver-->
+<!--    <include file="$(find livox_ros_driver)/launch/livox_lidar_msg.launch" />-->
+<!--    <node pkg="livox_repub" type="livox_repub" name="livox_repub" output="screen" />-->
+
+    <!--    IMU Driver-->
+<!--    <include file="$(find ros_mscl)/launch/microstrain.launch" />-->
+
+
     <!-- Parameters -->
     <rosparam file="$(find lio_sam)/config/params.yaml" command="load" />
 
@@ -12,15 +20,11 @@
     <include file="$(find lio_sam)/launch/include/module_robot_state_publisher.launch" />
 
     <!--- Run Navsat -->
-<!--    <include file="$(find lio_sam)/launch/include/module_navsat.launch" />-->
+    <!--    <include file="$(find lio_sam)/launch/include/module_navsat.launch" />-->
 
     <!--- Run Rviz-->
     <include file="$(find lio_sam)/launch/include/module_rviz.launch" />
 
-<!--    <include file="$(find lidar_localization)/launch/fake_imu.launch" />-->
-
-    <include file="$(find lidar_localization)/launch/fake_gps_odom.launch" />
-
-<!--    <node pkg="tf" type="static_transform_publisher" name="map_base_broadcaster" args="1.1 1.4 1.35 0 0.53 0 base_link lidar 100" />-->
+    <!--    <node pkg="tf" type="static_transform_publisher" name="map_base_broadcaster" args="1.1 1.4 1.35 0 0.53 0 base_link lidar 100" />-->
 
 </launch>

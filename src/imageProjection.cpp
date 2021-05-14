@@ -218,21 +218,21 @@ public:
         imuQueue.push_back(thisImu);
 
         // debug IMU data
-//         cout << std::setprecision(6);
-//         cout << "IMU acc: " << endl;
-//         cout << "x: " << thisImu.linear_acceleration.x <<
-//               ", y: " << thisImu.linear_acceleration.y <<
-//               ", z: " << thisImu.linear_acceleration.z << endl;
-//         cout << "IMU gyro: " << endl;
-//         cout << "x: " << thisImu.angular_velocity.x <<
-//               ", y: " << thisImu.angular_velocity.y <<
-//               ", z: " << thisImu.angular_velocity.z << endl;
-//         double imuRoll, imuPitch, imuYaw;
-//         tf::Quaternion orientation;
-//         tf::quaternionMsgToTF(thisImu.orientation, orientation);
-//         tf::Matrix3x3(orientation).getRPY(imuRoll, imuPitch, imuYaw);
-//         cout << "IMU roll pitch yaw: " << endl;
-//         cout << "roll: " << imuRoll << ", pitch: " << imuPitch << ", yaw: " << imuYaw << endl << endl;
+         cout << std::setprecision(6);
+         cout << "IMU acc: " << endl;
+         cout << "x: " << thisImu.linear_acceleration.x <<
+               ", y: " << thisImu.linear_acceleration.y <<
+               ", z: " << thisImu.linear_acceleration.z << endl;
+         cout << "IMU gyro: " << endl;
+         cout << "x: " << thisImu.angular_velocity.x <<
+               ", y: " << thisImu.angular_velocity.y <<
+               ", z: " << thisImu.angular_velocity.z << endl;
+         double imuRoll, imuPitch, imuYaw;
+         tf::Quaternion orientation;
+         tf::quaternionMsgToTF(thisImu.orientation, orientation);
+         tf::Matrix3x3(orientation).getRPY(imuRoll, imuPitch, imuYaw);
+         cout << "IMU roll pitch yaw: " << endl;
+         cout << "roll: " << imuRoll / M_PI * 180 << ", pitch: " << imuPitch / M_PI * 180 << ", yaw: " << imuYaw / M_PI * 180 << endl << endl;
     }
 
     /**
@@ -711,8 +711,8 @@ public:
         // 保存ring对应的点，这里假定点是按照次序进入的
         std::map<int, int> ring_map;
 
-        int count1 = 0;
-        int count2 = 0;
+//        int count1 = 0;
+//        int count2 = 0;
 
         // 遍历当前帧激光点云
         for (int i = 0; i < cloudSize; ++i)
@@ -729,7 +729,7 @@ public:
             if (range < lidarMinRange || range > lidarMaxRange)
                 continue;
 
-            count1 ++;
+//            count1 ++;
             // 扫描线检查
             int rowIdn = laserCloudIn->points[i].ring;
             if (rowIdn < 0 || rowIdn >= N_SCAN)
@@ -756,11 +756,11 @@ public:
             // 已经存过该点，不再处理
             if (rangeMat.at<float>(rowIdn, columnIdn) != FLT_MAX)
                 continue;
-            count2 ++;
+//            count2 ++;
 
             // 激光运动畸变校正
             // 利用当前帧起止时刻之间的imu数据计算旋转增量，imu里程计数据计算平移增量，进而将每一时刻激光点位置变换到第一个激光点坐标系下，进行运动补偿
-//            thisPoint = deskewPoint(&thisPoint, laserCloudIn->points[i].time);
+            thisPoint = deskewPoint(&thisPoint, laserCloudIn->points[i].time);
 
             // 矩阵存激光点的距离
             rangeMat.at<float>(rowIdn, columnIdn) = range;
