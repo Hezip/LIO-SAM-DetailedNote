@@ -290,6 +290,8 @@ public:
     bool cachePointCloud(const sensor_msgs::PointCloud2ConstPtr& laserCloudMsg)
     {
         cloudQueue.push_back(*laserCloudMsg);
+      cloudQueue.push_back(*laserCloudMsg);
+      cloudQueue.back().header.stamp = ros::Time::now();
         if (cloudQueue.size() <= 2)
             return false;
 

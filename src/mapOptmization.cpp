@@ -285,8 +285,8 @@ class mapOptimization : public ParamServer {
 
   void initializeGlobalMap() {
 //    std::string globalmap_pcd = nh.param<std::string>("globalmap_pcd", "");
-    pcl::io::loadPCDFile("", *cloudSurfMap);
-    pcl::io::loadPCDFile("", *cloudCornerMap);
+    pcl::io::loadPCDFile("/home/he/Data/baidu_map/SurfMap.pcd", *cloudSurfMap);
+    pcl::io::loadPCDFile("/home/he/Data/baidu_map/CornerMap.pcd", *cloudCornerMap);
     cloudSurfMap->header.frame_id = "map";
     cloudCornerMap->header.frame_id = "map";
 
@@ -947,7 +947,8 @@ class mapOptimization : public ParamServer {
     laserCloudCornerFromMap->clear();
     laserCloudSurfFromMap->clear();
 
-    SetFilterParam(cloudKeyPoses3D->back());
+    auto p = cloudKeyPoses3D->back();
+    SetFilterParam(p.x-20, p.x+20, p.y-20, p.y+20, p.z-20, p.z+20);
     Filter(cloudSurfMap, laserCloudSurfFromMap);
     Filter(cloudCornerMap, laserCloudCornerFromMap);
 
