@@ -304,6 +304,8 @@ class mapOptimization : public ParamServer {
     pcl::PointCloud<PointType>::Ptr filtered1(new pcl::PointCloud<PointType>());
     voxelgrid->filter(*filtered1);
     cloudCornerMap = filtered1;
+
+    cout << "Load map completed\n" << endl;
   }
 
   /**
