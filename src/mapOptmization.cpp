@@ -90,7 +90,8 @@ class mapOptimization : public ParamServer {
   pcl::ConditionalRemoval<PointType> condition_filter_;
   pcl::ConditionAnd<PointType>::Ptr range_cond_;
   ros::Subscriber subIniPoseFromRviz;
-  bool globalIniPoseRviz_;
+  ros::Publisher pubGlobalMap;
+  bool globalIniPoseRviz_ = false;
   float transformTobeMappedRviz[6];
 
   // gtsam
@@ -240,6 +241,8 @@ class mapOptimization : public ParamServer {
     // 发布激光里程计路径，rviz中表现为载体的运行轨迹
     pubPath = nh.advertise<nav_msgs::Path>("lio_sam/mapping/path", 1);
 
+    pubGlobalMap = nh.advertise<sensor_msgs::PointCloud2>("lio_sam/mapping/load_global_map", 1);
+
     // 订阅当前激光帧点云信息，来自featureExtraction
     subCloud = nh.subscribe<lio_sam::cloud_info>("lio_sam/feature/cloud_info",
                                                  1,
@@ -283,10 +286,10 @@ class mapOptimization : public ParamServer {
   }
 
 
-  void initializeGlobalMap() {
+  bool initializeGlobalMap() {
 //    std::string globalmap_pcd = nh.param<std::string>("globalmap_pcd", "");
-    pcl::io::loadPCDFile("/home/he/Data/baidu_map/SurfMap.pcd", *cloudSurfMap);
-    pcl::io::loadPCDFile("/home/he/Data/baidu_map/CornerMap.pcd", *cloudCornerMap);
+    pcl::io::loadPCDFile("/home/he/Data/baidu_map/SURFMAP.pcd", *cloudSurfMap);
+    pcl::io::loadPCDFile("/home/he/Data/baidu_map/CORNERMAP.pcd", *cloudCornerMap);
     cloudSurfMap->header.frame_id = "map";
     cloudCornerMap->header.frame_id = "map";
 
@@ -305,7 +308,7 @@ class mapOptimization : public ParamServer {
     voxelgrid->filter(*filtered1);
     cloudCornerMap = filtered1;
 
-    cout << "Load map completed\n" << endl;
+    ROS_INFO("Success Load Global Map.");
   }
 
   /**
@@ -363,6 +366,7 @@ class mapOptimization : public ParamServer {
     //first calculate global pose
     //x-y-z
     globalIniPoseRviz_ = true;
+    ROS_INFO("Receive initial pose");
 
     float x = pose_msg->pose.pose.position.x;
     float y = pose_msg->pose.pose.position.y;
@@ -439,15 +443,18 @@ class mapOptimization : public ParamServer {
       // 当前帧位姿初始化
       // 1、如果是第一帧，用原始imu数据的RPY初始化当前帧位姿（旋转部分）
       // 2、后续帧，用imu里程计计算两帧之间的增量位姿变换，作用于前一帧的激光位姿，得到当前帧激光位姿
+//      cout << "initilize pose guess" << endl;
       updateInitialGuess();
 
       // 提取局部角点、平面点云集合，加入局部map
       // 1、对最近的一帧关键帧，搜索时空维度上相邻的关键帧集合，降采样一下
       // 2、对关键帧集合中的每一帧，提取对应的角点、平面点，加入局部map中
       // MARK 从读取的全局地图中切割点云
+//      cout << "extract cloud" << endl;
       extractSurroundingKeyFrames();
 
       // 当前激光帧角点、平面点集合降采样
+//      cout << "downsample scan" << endl;
       downsampleCurrentScan();
 
       // scan-to-map优化当前帧位姿
@@ -462,6 +469,7 @@ class mapOptimization : public ParamServer {
       //    3) 提取当前帧中与局部map匹配上了的角点、平面点，加入同一集合
       //    4) 对匹配特征点计算Jacobian矩阵，观测值为特征点到直线、平面的距离，构建高斯牛顿方程，迭代优化当前位姿，存transformTobeMapped
       // 3、用imu原始RPY数据与scan-to-map优化后的位姿进行加权融合，更新当前帧位姿的roll、pitch，约束z坐标
+//      cout << "scan optimize" << endl;
       scan2MapOptimization();
 
       // 设置当前帧为关键帧并执行因子图优化
@@ -470,6 +478,7 @@ class mapOptimization : public ParamServer {
       // 3、执行因子图优化
       // 4、得到当前帧优化后位姿，位姿协方差
       // 5、添加cloudKeyPoses3D，cloudKeyPoses6D，更新transformTobeMapped，添加当前关键帧的角点、平面点集合
+//      cout << "factor graph" << endl;
       saveKeyFramesAndFactor();
 
       // 更新因子图中所有变量节点的位姿，也就是所有历史关键帧的位姿，更新里程计轨迹
@@ -477,6 +486,7 @@ class mapOptimization : public ParamServer {
 //            correctPoses();
 
       // 发布激光里程计
+//      cout << "publish1" <<endl;
       publishOdometry();
 
       // 发布里程计、点云、轨迹
@@ -484,6 +494,7 @@ class mapOptimization : public ParamServer {
       // 2、发布局部map的降采样平面点集合
       // 3、发布历史帧（累加的）的角点、平面点降采样集合
       // 4、发布里程计轨迹
+//      cout << "publish2" << endl;
       publishFrames();
     }
   }
@@ -797,12 +808,12 @@ class mapOptimization : public ParamServer {
 
         // 更新当前帧位姿transformTobeMapped
         Eigen::Affine3f transFinal =
-            pcl::getTransformation(transformTobeMappedRviz[0],
-                                   transformTobeMappedRviz[1],
-                                   transformTobeMappedRviz[2],
+            pcl::getTransformation(transformTobeMappedRviz[3],
+                                   transformTobeMappedRviz[4],
+                                   transformTobeMappedRviz[5],
                                    cloudInfo.imuRollInit,
                                    cloudInfo.imuPitchInit,
-                                   transformTobeMappedRviz[5]);
+                                   transformTobeMappedRviz[2]);
         pcl::getTranslationAndEulerAngles(transFinal,
                                           transformTobeMapped[3],
                                           transformTobeMapped[4],
@@ -944,22 +955,37 @@ class mapOptimization : public ParamServer {
   // MARK 从全局点云地图中根据当前位置(cloudKeyPoses3D->back())切割得到局部map
   void extractNearby() {
     // 相邻关键帧集合对应的角点、平面点，加入到局部map中；注：称之为局部map，后面进行scan-to-map匹配，所用到的map就是这里的相邻关键帧对应点云集合
-    laserCloudCornerFromMap->clear();
-    laserCloudSurfFromMap->clear();
+    static auto pose_cur = cloudKeyPoses3D->back();
+    static auto pose_last = cloudKeyPoses3D->back();
+    static bool init = false;
 
-    auto p = cloudKeyPoses3D->back();
-    SetFilterParam(p.x-20, p.x+20, p.y-20, p.y+20, p.z-20, p.z+20);
-    Filter(cloudSurfMap, laserCloudSurfFromMap);
-    Filter(cloudCornerMap, laserCloudCornerFromMap);
+    pose_cur = cloudKeyPoses3D->back();
+    double x, y, z;
+    x = pose_cur.x - pose_last.x;
+    y = pose_cur.y - pose_last.y;
+    z = pose_cur.z - pose_last.z;
+    double dis = sqrt(x*x + y*y + z*z);
+    //移动距离超过threshold需要更新local地图
+    if (dis > 5 || !init) {
+      init = true;
+      pose_last = pose_cur;
 
-    // 降采样局部角点map
-    downSizeFilterCorner.setInputCloud(laserCloudCornerFromMap);
-    downSizeFilterCorner.filter(*laserCloudCornerFromMapDS);
-    laserCloudCornerFromMapDSNum = laserCloudCornerFromMapDS->size();
-    // 降采样局部平面点map
-    downSizeFilterSurf.setInputCloud(laserCloudSurfFromMap);
-    downSizeFilterSurf.filter(*laserCloudSurfFromMapDS);
-    laserCloudSurfFromMapDSNum = laserCloudSurfFromMapDS->size();
+      laserCloudCornerFromMap->clear();
+      laserCloudSurfFromMap->clear();
+
+      SetFilterParam(pose_cur.x-20, pose_cur.x+20, pose_cur.y-20, pose_cur.y+20, pose_cur.z-10, pose_cur.z+10);
+      Filter(cloudSurfMap, laserCloudSurfFromMap);
+      Filter(cloudCornerMap, laserCloudCornerFromMap);
+
+      // 降采样局部角点map
+      downSizeFilterCorner.setInputCloud(laserCloudCornerFromMap);
+      downSizeFilterCorner.filter(*laserCloudCornerFromMapDS);
+      laserCloudCornerFromMapDSNum = laserCloudCornerFromMapDS->size();
+      // 降采样局部平面点map
+      downSizeFilterSurf.setInputCloud(laserCloudSurfFromMap);
+      downSizeFilterSurf.filter(*laserCloudSurfFromMapDS);
+      laserCloudSurfFromMapDSNum = laserCloudSurfFromMapDS->size();
+    }
   }
 
   /**
@@ -970,8 +996,15 @@ class mapOptimization : public ParamServer {
   void extractSurroundingKeyFrames() {
     // 没有关键帧
     // MARK 没有读取的全局点云
-    if (cloudSurfMap->points.empty() && cloudCornerMap->points.empty())
+    if (cloudSurfMap->points.empty() && cloudCornerMap->points.empty()) {
+      ROS_ERROR("no map found");
       return;
+    }
+
+    if (cloudKeyPoses3D->points.empty() == true) {
+      return;
+    }
+
     // 提取局部角点、平面点云集合，加入局部map
     // 1、对最近的一帧关键帧，搜索时空维度上相邻的关键帧集合，降采样一下
     // 2、对关键帧集合中的每一帧，提取对应的角点、平面点，加入局部map中
@@ -1856,6 +1889,17 @@ class mapOptimization : public ParamServer {
       globalPath.header.stamp = timeLaserInfoStamp;
       globalPath.header.frame_id = odometryFrame;
       pubPath.publish(globalPath);
+    }
+
+    // MARK 发布全部的地图
+    // 只有订阅消息关掉再开才会使得地图重新发布
+    static bool pub_ = true;
+    if (pubGlobalMap.getNumSubscribers() == 0) {
+      pub_ = true;
+    }
+    if (pubGlobalMap.getNumSubscribers() != 0 && pub_ == true) {
+      pub_ = false;
+      pubGlobalMap.publish(cloudSurfMap);
     }
   }
 };
